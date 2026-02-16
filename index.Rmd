@@ -11,4 +11,4 @@ output:
 
 ## Project thoughts
 
-A few areas which I am interested in exploring data is in local elections, maybe negative advertising in elections or economic downturns and how those effect elections.
+A few areas which I am interested in exploring involve local elections, maybe something on the advertising aspect in elections or on economic downturns and how those effect elections.
