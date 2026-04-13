@@ -53,3 +53,21 @@ data |>
 ```
 ## Interpretation
 Both of these figures help illustrate how tax structure changes with economic development. The first graph shows a slight positive relationship between GDP and the share of revenue from direct taxes, suggesting that as a country gets wealthier they tend to rely somewhat more on direct taxation. The second graph shows the opposite for indirect taxes with a slight negative relationship between GDP and the indirect tax share. However, both plots have a lot of variation in how countries rely on the different types of reliance on taxes, indicating that the relationship is not very strong.
+
+
+## Data Analysis
+```{r}
+data |>
+  drop_na(gdp, centaxdirectsh, centaxindirectsh)|>
+  summarize(
+    avg_direct = mean(centaxdirectsh),
+    avg_indirect = mean(centaxindirectsh),
+    cor_direct = cor(log(gdp), centaxdirectsh),
+    cor_indirect = cor(log(gdp), centaxindirectsh)
+  ) |>
+  knitr::kable(digits = 3, col.names=c("Average Direct Taxes", "Average Indirect Taxes", "Correlation Direct Taxes", "Correlation Indirect Taxes"))
+```
+## Interpretation
+The results show that indirect taxes make up a larger share of revenue on average compared to direct taxes. There is a small positive relationship between GDP and direct tax share (0.186), and a very weak negative relationship with indirect taxes (-0.053). However, both of these correlations are quite small, suggesting that while there is some pattern consistent with the hypothesis, GDP alone does not strongly explain how countries structure their tax systems. This further supports the earlier regression graphs showing a noisy and weak relationship.
+
+
