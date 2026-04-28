@@ -1,5 +1,5 @@
 ---
-title: "PS270 Final Project"
+title: "Do Wealthier Countries Rely More on Direct Taxes?"
 author: "Syver Gulbrandsen"
 description: "My final project"
 output:
@@ -9,54 +9,98 @@ output:
 
 
 
-## Project thoughts
+## Introduction
 
+This project asks whether wealthier countries rely more heavily on direct taxes compared to poorer countries. Specifically, I wished to examine whether countries with higher GDP tend to collect a larger share of central government tax revenue from direct taxes, such as income or profits taxes, rather than indirect taxes, such as taxes on goods and services.
 
-A few areas which I am interested in exploring involve local elections, maybe something on the advertising aspect in elections or on economic downturns and how those effect elections.
-I switched my original interest from economic downturns and how those effect elections to a countries development and their taxes. I could not find a data set that matched what I wanted to accomplish for my first interest and then I came across this data set and found it pretty interesting.
+This question is important because tax systems are closely connected to state capacity and economic development. My hypothesis is that wealthier countries will rely more on direct taxes because they tend to have stronger institutions, better administrative capacity, and more ability to monitor income and collect taxes efficiently. In contrast, poorer countries may rely more on indirect taxes because they are often easier to collect.
 
-```{r}
+```{r, echo=FALSE}
 library(tidyverse)
-data<-read_csv("data/govrev_v3.csv")
+library(broom)
+library(knitr)
+data <- read_csv("data/govrev_v3.csv")
 head(data)
 ```
 
 
-## Hypothesis/Research Question
-My data set that I am using is from Per F. Anderson and is titled "Financing the State: Government Tax Revenue from 1800 to 2024".It has information on the size and composition of government tax revenue from 31 countries between 1800 and 2024. My research question that I hope to answer using this data is "Do wealthier countries rely more on direct taxes rather than indirect taxes compared to poorer countries?" My hypothesis is that as countries get wealthier (as real gdp increases), they rely more on direct taxes vs indirect since the more developed they are, the better their institutions in place are and the better able they are to monitor and collect taxes on things like income efficiently. Poorer countries, may rely on indirect taxes more which are easier to collect. The explanatory variable would be gdp measuring total economic output. My outcome variable will be centaxdirectsh, which is direct tax revenue's share out of total tax revenue. I would also like to see how another variable centaxindirectsh which is the indirect tax revenue's share out of total tax revenue. The pattern that would prove my thesis, is that as a country develops over time, the centaxdirectsh increases along with GDP, so as countries get more developed they rely more on direct taxes, vs as countries who are less developed rely more on indirect taxes. 
+## Data
+
+The data for this project comes from Per F. Andersson’s dataset, *Financing the State: Government Tax Revenue from 1800 to 2024*. The dataset includes information on the size and composition of government tax revenue for 31 countries from 1800 to 2024. Since I am comparing country-year observations using GDP and tax structure, my research design is observational and mostly cross-sectional. This means I am examining patterns across country-year data points rather than using a randomized experiment, before-and-after design, or differences-in-differences design.
+
+The main dependent variable is `centaxdirectsh`, which measures the share of tax revenue that comes from direct taxes. The main independent variable is `gdp`, which measures total economic output. I will use the log of GDP in the graphs and regressions because GDP is highly skewed when comparing individual countries as $1 in one country means a lot less in another, so by using percent change instead of an individual dollars, it will make the relationship easier to both visualize and interpret.
+
+My hypothesis is that as countries get wealthier (as real gdp increases), they rely more on direct taxes vs indirect since the more developed they are, the better their institutions in place are and the better able they are to monitor and collect taxes on things like income efficiently. Poorer countries, may rely on indirect taxes more which are easier to collect if you don't have the same capacity.
+
+My hypothesis would be supported if higher values of log GDP are associated with higher direct tax shares. I also examine `centaxindirectsh`, which measures the share of central government tax revenue from indirect taxes. So, wealthier countries should rely more on direct taxes and less on indirect taxes.
 
 
 ## Data Visualisation
-```{r}
+
+### Dependent Variable
+The main dependent variable is `centaxdirectsh`, which measures the share of central government tax revenue that comes from direct taxes. 
+
+### Other Dependent Variable 
+The other dependent variable is `centaxindirectsh`, which measures the share of central government tax revenue that comes from indirect taxes. 
+
+### Independent Variable
+My main independent variable is `gdp`, which measures total economic output. I will be using the log of GDP in the graphs and regression because GDP often is highly skewed, and logging it makes the relationship easier to interpret and visualize. 
+
+```{r, echo=FALSE}
+data |>
+  drop_na(centaxdirectsh) |>
+  ggplot(aes(x = centaxdirectsh)) +
+  geom_histogram(binwidth = 5) + 
+  geom_vline(xintercept = mean(data$centaxdirectsh, na.rm = TRUE), color= "red")+
+  labs(
+    x = "Direct Tax Share of Central Government Revenue",
+    y = "Number of Country-Year Observations",
+    title = "Distribution of Direct Tax Share")
+```
+```{r, echo=FALSE}
+data |>
+  drop_na(centaxindirectsh) |>
+  ggplot(aes(x = centaxindirectsh)) +
+  geom_histogram(binwidth = 5,) + 
+  geom_vline(xintercept = mean(data$centaxindirectsh, na.rm = TRUE), color= "red")+
+  labs(x = "Indirect Tax Share of Central Government Revenue",
+    y = "Number of Country-Year Observations",
+    title = "Distribution of Indirect Tax Share")
+```
+### Interpretation of Distribution of Direct and Indirect Tax Share
+The first figure is a histogram that shows that most country-year observations had mostly direct tax shares between 20% and 50% of central government revenue, with the average being at 36.89%. Extremely low or high direct tax shares were less common, suggesting that most countries have a more moderate reliance on direct taxation across both countries and years.
+The second figure is a histogram of indirect tax shares which the majority of them between 50% to 70%, with an average around 58%. 
+This suggests that across country-year observations, governments more often depend on taxes such as sales taxes, value-added taxes, and excise taxes than on income or corporate taxes alone.
+
+
+```{r, echo=FALSE}
 data |>
   drop_na(gdp, centaxdirectsh) |>
   ggplot(aes(x = log(gdp), y = centaxdirectsh)) +
   geom_point(alpha = .5) +
   geom_smooth(method = "lm") +
-  labs(
-    x = "Log GDP",
+  labs(x = "Log GDP",
     y = "Direct Tax Share",
-    title = "Do Wealthier Countries Rely More on Direct Taxes?"
-  )
+    title = "Do Wealthier Countries Rely More on Direct Taxes?")
 ```
-```{r}
+```{r, echo=FALSE}
 data |>
   drop_na(gdp, centaxindirectsh) |>
   ggplot(aes(x = log(gdp), y = centaxindirectsh)) +
   geom_point(alpha = .5) +
   geom_smooth(method = "lm") +
-  labs(
-    x = "Log GDP",
+  labs(x = "Log GDP",
     y = "Indirect Tax Share",
-    title = "Do Wealthier Countries Rely More on Indirect Taxes?"
-  )
+    title = "Do Wealthier Countries Rely More on Indirect Taxes?")
 ```
-## Interpretation
-Both of these figures help illustrate how tax structure changes with economic development. The first graph shows a slight positive relationship between GDP and the share of revenue from direct taxes, suggesting that as a country gets wealthier they tend to rely somewhat more on direct taxation. The second graph shows the opposite for indirect taxes with a slight negative relationship between GDP and the indirect tax share. However, both plots have a lot of variation in how countries rely on the different types of reliance on taxes, indicating that the relationship is not very strong.
+
+### Interpretation of Wealthier Countries and Reliance on Direct and Indirect Taxes
+According to the first visual, as countries share of direct taxes goes up, their log gdp also goes up, presenting a positive relationship.
+According to the second visual, as countries share of indirect taxes goes up, their log gdp tends to decrease slightly, presenting a slightly negative relationship. 
 
 
 ## Data Analysis
-```{r}
+```{r, echo=FALSE}
 data |>
   drop_na(gdp, centaxdirectsh, centaxindirectsh)|>
   summarize(
@@ -67,7 +111,62 @@ data |>
   ) |>
   knitr::kable(digits = 3, col.names=c("Average Direct Taxes", "Average Indirect Taxes", "Correlation Direct Taxes", "Correlation Indirect Taxes"))
 ```
-## Interpretation
-The results show that indirect taxes make up a larger share of revenue on average compared to direct taxes. There is a small positive relationship between GDP and direct tax share (0.186), and a very weak negative relationship with indirect taxes (-0.053). However, both of these correlations are quite small, suggesting that while there is some pattern consistent with the hypothesis, GDP alone does not strongly explain how countries structure their tax systems. This further supports the earlier regression graphs showing a noisy and weak relationship.
+### Interpretation on Data Analysis
+The results show that indirect taxes make up a larger share of revenue on average compared to direct taxes. There is a small positive relationship between GDP and direct tax share (0.186), and a very weak negative relationship with indirect taxes (-0.053) which is what we saw with the first two graphs on distribution of tax share. However, both of these correlations are quite small, suggesting that while there is some pattern consistent with the hypothesis, GDP alone does not strongly explain how countries structure their tax systems. This further supports the earlier regression graphs showing a noisy and weak relationship.
+
+## Regression
+
+### Null Hypothesis
+Regression 1: Direct Tax Share on Log GDP- The null hypothesis is that GDP has no statistically significant relationship with a country’s direct tax share.
+
+Regression 2: Indirect Tax Share on Log GDP- The null hypothesis is that GDP has no statistically significant relationship with a country’s indirect tax share.
+
+Regression 3: Direct Tax Share on Log GDP Controlling for Indirect Tax Share- The null hypothesis is that GDP has no statistically significant relationship with direct tax share after controlling for indirect tax share.
+
+### Alternative Hypothesis
+Regression 1: Direct Tax Share on Log GDP- The alternative hypothesis is that GDP does have a statistically significant relationship with direct tax share.
+
+Regression 2: Indirect Tax Share on Log GDP- The alternative hypothesis is that GDP does have a statistically significant relationship with indirect tax share.
+
+Regression 3: Direct Tax Share on Log GDP Holding Indirect Tax Share Constant- The alternative hypothesis is that GDP still has a statistically significant relationship with direct tax share even after controlling for indirect tax share.
+
+### Results
+```{r, echo= FALSE}
+library(broom)
+direct_regression <- lm(centaxdirectsh ~ log(gdp), data = data)
+indirect_regression <- lm(centaxindirectsh ~ log(gdp), data = data)
+direct_reg_ctrl_indirect<- lm(centaxdirectsh ~ log(gdp)+ centaxindirectsh, data = data)
+
+tidy(direct_regression) |> knitr::kable(digits = 3, col.names = c("Term", "Estimate", "Std. Error", "t Statistic", "P-Value"))
+tidy(indirect_regression) |> knitr::kable(digits = 3, col.names = c("Term", "Estimate", "Std. Error", "t Statistic", "P-Value"))
+tidy(direct_reg_ctrl_indirect) |> knitr::kable(digits = 3, col.names = c("Term", "Estimate", "Std. Error", "t Statistic", "P-Value"))
+```
+### Interpretations on Regressions
+Regression 1: Direct Tax Share on Log GDP
+
+The coefficient on log(gdp) is 0.828 which is positive and statistically significant since the p-value = 0.000. This suggests that as GDP levels increase countries tend to have higher direct tax shares so wealthier countries appear more able to rely on taxes such as income taxes and corporate taxes. Since p-value < 0.05, we can therefore reject the null hypothesis and conclude there is strong evidence of a positive relationship between GDP and direct taxation.
+
+Regression 2: Indirect Tax Share on Log GDP
+
+The coefficient on log(gdp) is -0.549 which is negative and statistically significant since the p-value = 0.000. This suggests that as GDP increases, countries tend to rely less on indirect taxes such as sales taxes, VAT, and excise taxes. Wealthier countries may have stronger institutions and administrative systems that allow them to collect more direct taxes instead. Since p-value < 0.05, we reject the null hypothesis and conclude of a negative relationship between GDP and indirect taxation.
+
+Regression 3: Direct Tax Share on Log GDP Holding Indirect Tax Share Constant
+
+Holding indirect tax share constant, the coefficient on log(gdp) is 0.660 which is positive and statistically significant with p-value = 0.000. This means that GDP still its own relationship with direct tax share even when accounting for a country’s use of indirect taxes. The coefficient on indirect tax share is negative -0.700, which shows that countries who rely more on indirect taxes tend to rely less on direct taxes, showing a trade off between the two. Because both p-values < 0.05, we reject the null hypothesis and conclude that both GDP and indirect tax share are statistically significant predictors of direct tax share.
+
+All three regressions suggest that wealthier countries tend to rely more on direct taxation and less on indirect taxation. This helps support that economic development is associated with more advanced tax systems and stronger state capacity which are able to enforce direct taxes. Higher-income countries are generally better able to monitor incomes, enforce tax laws, and administer progressive tax systems, whereas lower-income countries often depend more on easier to collect consumption taxes since they don't have the same capacity as wealthier countries. The fact that GDP remains significant even after controlling for indirect tax share further strengthens the argument that this is not just a simple tradeoff between tax categories, but that the development of countries themselves are likely linked to tax structure. Overall, the combined evidence supports my hypothesis that richer countries rely more heavily on direct taxes relative to poorer countries.
+
+## Conclusion
+
+My results provide support for my hypothesis that wealthier countries rely more on direct taxes and less on indirect taxes. The scatterplot shows a positive relationship between log GDP and direct tax share, and the regression results show that this relationship is statistically significant. The indirect tax analysis also supports the hypothesis because higher GDP is associated with lower reliance on indirect taxes. However, I would not interpret these coefficients as clearly causal. GDP is not randomly assigned. Other factors could influence both GDP and tax reliance, including political institutions, administrative capacity, democracy, war, inequality, colonial history, and time period. For that reason, the results should be interpreted as evidence of an association between GDP and tax structure, not proof that higher GDP directly causes countries to rely more on direct taxes. If I were to improve my analysis, I would improve the analysis by adding more control variables as well as compare countries within the same time period, or use a specific country and examine whether countries shift toward direct taxation as they become wealthier over time or if once they switch to direct taxation they get wealthier.
+
+
+
+
+## Code
+```{r print-code, ref.label=knitr::all_labels(), echo = TRUE, eval=FALSE}
+
+```
+
 
 
