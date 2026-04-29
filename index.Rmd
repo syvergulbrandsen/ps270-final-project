@@ -52,8 +52,7 @@ data |>
   ggplot(aes(x = centaxdirectsh)) +
   geom_histogram(binwidth = 5) + 
   geom_vline(xintercept = mean(data$centaxdirectsh, na.rm = TRUE), color= "red")+
-  labs(
-    x = "Direct Tax Share of Central Government Revenue",
+  labs(x = "Direct Tax Share of Central Government Revenue",
     y = "Number of Country-Year Observations",
     title = "Distribution of Direct Tax Share")
 ```
@@ -103,12 +102,10 @@ According to the second visual, as countries share of indirect taxes goes up, th
 ```{r, echo=FALSE}
 data |>
   drop_na(gdp, centaxdirectsh, centaxindirectsh)|>
-  summarize(
-    avg_direct = mean(centaxdirectsh),
+  summarize(avg_direct = mean(centaxdirectsh),
     avg_indirect = mean(centaxindirectsh),
     cor_direct = cor(log(gdp), centaxdirectsh),
-    cor_indirect = cor(log(gdp), centaxindirectsh)
-  ) |>
+    cor_indirect = cor(log(gdp), centaxindirectsh)) |>
   knitr::kable(digits = 3, col.names=c("Average Direct Taxes", "Average Indirect Taxes", "Correlation Direct Taxes", "Correlation Indirect Taxes"))
 ```
 ### Interpretation on Data Analysis
